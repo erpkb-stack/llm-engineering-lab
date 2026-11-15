@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LLM Engineering Lab</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="icon" type="image/svg+xml" href="/static/img/logo.svg">
+  <meta name="theme-color" content="#714B67">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/inter@5.0.18/index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/caveat@5.0.18/700.css">
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+<div class="lab-shell">
+  <aside class="lab-sidebar" id="sidebar" aria-label="Main navigation">
+    <a class="brand" href="#/overview" aria-label="LLM Engineering Lab home"><img src="/static/img/logo.svg" alt=""><span>LLM Engineering<span class="brand-sub">Lab</span></span></a>
+    <nav class="lab-nav" id="nav"></nav>
+    <div class="p-3 small text-muted">v1.0 · <a href="/docs" target="_blank" rel="noopener">API docs</a></div>
+  </aside>
+  <div class="lab-main">
+    <header class="lab-topbar">
+      <button class="btn btn-sm btn-outline-secondary d-lg-none" id="menu-btn" aria-label="Toggle menu">☰</button>
+      <div id="crumbs" class="fw-semibold"></div>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <span id="provider-badge" class="badge text-bg-secondary" title="Active model provider"></span>
+        <span id="model-badge" class="badge text-bg-secondary" title="Active model / hardware (Settings)"></span>
+        <button class="btn btn-sm btn-outline-secondary" id="theme-btn" title="Toggle light/dark theme" aria-label="Toggle theme">◐</button>
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" id="user-btn" aria-expanded="false">…</button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><span class="dropdown-item-text small" id="user-role"></span></li>
+            <li><a class="dropdown-item" href="#/settings">Settings</a></li>
+            <li><a class="dropdown-item" href="#/history">My experiments</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item text-danger" id="logout-btn">Log out</button></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+    <main class="lab-content" id="view" tabindex="-1"><div class="computing"><span class="spinner-dot"></span>Loading…</div></main>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script type="module" src="/static/js/app.js"></script>
+</body>
+</html>

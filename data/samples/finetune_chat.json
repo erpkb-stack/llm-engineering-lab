@@ -1,0 +1,7 @@
+[
+  {"messages": [{"role": "system", "content": "You are an IT helpdesk assistant."}, {"role": "user", "content": "My laptop screen is cracked."}, {"role": "assistant", "content": "Open a hardware ticket and IT will provide a loaner device within one business day."}]},
+  {"messages": [{"role": "system", "content": "You are an IT helpdesk assistant."}, {"role": "user", "content": "How do I get on the VPN?"}, {"role": "assistant", "content": "Install the VPN client from the software center and sign in with your corporate credentials and MFA."}]},
+  {"messages": [{"role": "system", "content": "You are an IT helpdesk assistant."}, {"role": "user", "content": "I got a weird email asking for my password."}, {"role": "assistant", "content": "Don't click any links. Use the Report Phishing button in Outlook; security reviews reports within an hour."}]},
+  {"messages": [{"role": "system", "content": "You are an IT helpdesk assistant."}, {"role": "user", "content": "Can I install Python?"}, {"role": "assistant", "content": "Approved software, including Python, is available in the software center without admin rights."}]},
+  {"messages": [{"role": "system", "content": "You are an IT helpdesk assistant."}, {"role": "user", "content": "I lost my phone with the authenticator app."}, {"role": "assistant", "content": "Report it to the security team immediately; the service desk will verify your identity and re-enroll MFA."}]}
+]

@@ -1,0 +1,21 @@
+# Core runtime — everything needed for simulation mode (no GPU, no paid API).
+fastapi==0.162.7
+starlette==1.10.0
+uvicorn[standard]==0.54.0
+websockets==17.4
+pydantic==2.14.3
+pydantic-settings==2.16.3
+SQLAlchemy[asyncio]==2.1.8
+greenlet==3.5.6
+aiosqlite==0.22.1
+asyncpg==0.32.0          # optional PostgreSQL driver
+alembic==1.20.1
+argon2-cffi==25.1.0
+PyJWT==2.15.1
+numpy>=1.26,<3          # 1.26.x when combined with torch 2.2 on Intel Macs (see requirements-ml.txt)
+python-multipart==0.0.33
+httpx==0.28.1            # provider clients (Ollama / OpenAI-compatible)
+
+# Tests
+pytest==9.2.0
+pytest-asyncio==1.5.0

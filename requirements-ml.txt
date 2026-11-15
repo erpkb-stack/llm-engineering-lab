@@ -1,0 +1,24 @@
+# Optional real-model integrations (Level 2). Install on top of requirements.txt:
+#   pip install -r requirements-ml.txt
+# then set LLMLAB_ENABLE_HF_MODELS=true (downloads model weights on first use: SmolLM2-135M ≈ 270 MB,
+# all-MiniLM-L6-v2 ≈ 90 MB, ms-marco-MiniLM-L-6 cross-encoder ≈ 90 MB).
+#
+# Verified combination (Intel macOS, Python 3.12, CPU) — PyTorch ships no wheels newer than 2.2.2 for
+# Intel Macs, and 2.2.x requires NumPy 1.x. On Apple Silicon / Linux you can relax these pins.
+torch==2.2.2
+numpy<2
+transformers>=4.44,<4.50
+tokenizers
+sentence-transformers>=3.0,<4   # real bi-encoder embeddings + cross-encoder reranker
+peft>=0.12,<0.15                # LoRA / QLoRA adapters (real fine-tuning in the lab)
+accelerate>=0.33,<1.3
+faiss-cpu                       # vector index (auto-used when installed)
+tiktoken                        # extra real tokenizer for the tokenizer comparison
+# Do NOT install `datasets` alongside torch 2.2 / NumPy 1.x: recent pyarrow needs NumPy 2 and breaks
+# `transformers.Trainer` and `sentence_transformers` imports. The lab does not need it.
+#
+# GPU-only extras (Level 3):
+# bitsandbytes>=0.43            # 4-bit NF4 / 8-bit quantization (QLoRA)
+# opacus>=1.5                   # production DP-SGD
+# vllm>=0.6                     # high-throughput serving (PagedAttention, continuous batching)
+# chromadb>=0.5                 # alternative vector database
