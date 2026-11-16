@@ -103,3 +103,20 @@ def test_settings_roundtrip(engineer):
     s = r.json()["settings"]
     assert s["hardware"] == "h100" and s["active_model"] == "mistral-7b" and s["memory_efficiency"] == 1.0 and "unknown" not in s
     assert engineer.get("/api/dashboard/summary").json()["active_model"]["key"] == "mistral-7b"
+
+
+def test_serverless_without_secret_key_refuses_login_clearly(app, monkeypatch):
+    import app.core.config as config
+
+    monkeypatch.setattr(config, "ON_SERVERLESS", True)
+    monkeypatch.delenv("LLMLAB_SECRET_KEY", raising=False)
+    with TestClient(app) as c:
+        assert c.get("/api/health").json()["session_key"] == "missing"
+        r = c.post("/api/auth/login", json={"email": "demo@llmlab.local", "password": "Demo@12345"})
+        assert r.status_code == 503
+        assert r.json()["error"]["code"] == "server_misconfigured" and "LLMLAB_SECRET_KEY" in r.json()["error"]["message"]
+        assert "llmlab_session=" not in ",".join(r.headers.get_list("set-cookie"))
+
+    monkeypatch.setenv("LLMLAB_SECRET_KEY", "x" * 48)
+    with TestClient(app) as c:
+        assert c.get("/api/health").json()["session_key"] == "configured"

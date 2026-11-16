@@ -50,6 +50,13 @@ class CapabilityUnavailable(AppError):
     code = "capability_unavailable"
 
 
+class ServerMisconfigured(AppError):
+    """A deployment setting the app cannot work without is missing."""
+
+    status_code = 503
+    code = "server_misconfigured"
+
+
 def _body(code: str, message: str, details=None) -> dict:
     return {"error": {"code": code, "message": message, "details": details or {}, "request_id": request_id_var.get()}}
 

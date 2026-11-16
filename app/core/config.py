@@ -21,6 +21,13 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 ON_SERVERLESS = bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
 # Where the app writes at runtime (SQLite file, uploads, adapters). Bundled read-only data
 # such as data/samples/ always stays under BASE_DIR.
+
+
+def session_key_configured() -> bool:
+    """False on serverless when no fixed LLMLAB_SECRET_KEY is set: each instance would sign sessions with its own key."""
+    return not ON_SERVERLESS or bool(os.environ.get("LLMLAB_SECRET_KEY", "").strip())
+
+
 RUNTIME_DIR = Path(os.environ.get("LLMLAB_RUNTIME_DIR") or ("/tmp/llmlab" if ON_SERVERLESS else BASE_DIR / "data"))
 
 
@@ -76,7 +83,7 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def _production_guards(self) -> "Settings":
-        if ON_SERVERLESS and not os.environ.get("LLMLAB_SECRET_KEY"):
+        if not session_key_configured():
             # Each serverless instance would generate its own key, so sessions signed on one
             # instance are rejected by the next (random logouts). Warn loudly instead of crashing.
             logging.getLogger("llmlab").warning("LLMLAB_SECRET_KEY is not set: logins will not survive across serverless instances")

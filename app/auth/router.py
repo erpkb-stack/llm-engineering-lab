@@ -9,8 +9,8 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import Principal, audit, current_principal
-from app.core.config import get_settings
-from app.core.errors import AuthError
+from app.core.config import get_settings, session_key_configured
+from app.core.errors import AuthError, ServerMisconfigured
 from app.core.security import ROLE_LABELS, PERMISSIONS, create_access_token, login_throttle, new_csrf_token, verify_password
 from app.db.models import User
 from app.db.session import get_db
@@ -50,6 +50,10 @@ class LoginResponse(BaseModel):
 @router.post("/login", response_model=LoginResponse)
 async def login(body: LoginRequest, request: Request, response: Response, db: AsyncSession = Depends(get_db)):
     s = get_settings()
+    if not session_key_configured():
+        raise ServerMisconfigured("Sign-in is unavailable: this server has no LLMLAB_SECRET_KEY set, so sessions would be "
+                                  "lost between serverless instances. Add it in the hosting provider's environment variables "
+                                  "and redeploy (see README → Deploying to Vercel).")
     email = body.email.strip().lower()
     key = f"{email}|{request.client.host if request.client else ''}"
     if login_throttle.is_locked(key):

@@ -200,7 +200,7 @@ Environment Variables**, then redeploy:
 
 | Variable | Value |
 |---|---|
-| `LLMLAB_SECRET_KEY` | **Required.** A long random string (`python -c "import secrets; print(secrets.token_urlsafe(48))"`). Without it every serverless instance signs sessions with its own key and users get logged out at random. |
+| `LLMLAB_SECRET_KEY` | **Required.** A long random string (`python -c "import secrets; print(secrets.token_urlsafe(48))"`). Without it every serverless instance signs sessions with its own key and users get logged out at random. Until it is set, sign-in is refused with a message saying so, and `/api/health` reports `"session_key": "missing"`. |
 | `LLMLAB_DATABASE_URL` | Recommended. A Postgres URL (Neon, Supabase, Vercel Postgres). Plain `postgres://…?sslmode=require` URLs are accepted. |
 | `LLMLAB_DEMO_USER_PASSWORD` | Optional. Change it if the deployment is public. |
 

@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.auth.router import router as auth_router
 from app.benchmarking.router import router as bench_router
-from app.core.config import BASE_DIR, get_settings
+from app.core.config import BASE_DIR, ON_SERVERLESS, get_settings, session_key_configured
 from app.core.errors import install_handlers
 from app.core.logging import configure_logging, request_id_var
 from app.dashboard.router import router as dashboard_router
@@ -85,7 +85,8 @@ def create_app() -> FastAPI:
 
     @app.get("/api/health", tags=["meta"])
     async def health():
-        return {"status": "ok", "modules": len(all_modules()), "environment": s.environment}
+        return {"status": "ok", "modules": len(all_modules()), "environment": s.environment,
+                "serverless": ON_SERVERLESS, "session_key": "configured" if session_key_configured() else "missing"}
 
     app.mount("/static", StaticFiles(directory=FRONTEND), name="static")
 
