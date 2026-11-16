@@ -8,10 +8,10 @@ import json
 import uuid
 from pathlib import Path
 
-from app.core.config import BASE_DIR
+from app.core.config import RUNTIME_DIR
 from app.core.errors import ParameterError
 
-UPLOAD_DIR = Path(BASE_DIR) / "data" / "uploads"
+UPLOAD_DIR = Path(RUNTIME_DIR) / "uploads"
 SCHEMAS = {
     "chat": "messages: [{role, content}, …]",
     "alpaca": "instruction, (input), output",

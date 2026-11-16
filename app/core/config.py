@@ -5,6 +5,8 @@ All settings can be overridden with environment variables prefixed ``LLMLAB_``
 """
 from __future__ import annotations
 
+import logging
+import os
 import secrets
 from functools import lru_cache
 from pathlib import Path
@@ -14,6 +16,12 @@ from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parents[2]
+
+# Serverless platforms (Vercel, AWS Lambda) mount the code read-only; only /tmp is writable.
+ON_SERVERLESS = bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
+# Where the app writes at runtime (SQLite file, uploads, adapters). Bundled read-only data
+# such as data/samples/ always stays under BASE_DIR.
+RUNTIME_DIR = Path(os.environ.get("LLMLAB_RUNTIME_DIR") or ("/tmp/llmlab" if ON_SERVERLESS else BASE_DIR / "data"))
 
 
 class Settings(BaseSettings):
@@ -31,7 +39,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_minutes: int = 60
     remember_me_days: int = 14
-    cookie_secure: bool = False
+    cookie_secure: bool = ON_SERVERLESS  # Vercel always serves HTTPS
     cookie_samesite: Literal["lax", "strict", "none"] = "lax"
     session_cookie_name: str = "llmlab_session"
     csrf_cookie_name: str = "llmlab_csrf"
@@ -40,7 +48,7 @@ class Settings(BaseSettings):
     cors_origins: list[str] = []
 
     # --- Database -----------------------------------------------------------
-    database_url: str = f"sqlite+aiosqlite:///{BASE_DIR / 'data' / 'llmlab.db'}"
+    database_url: str = f"sqlite+aiosqlite:///{RUNTIME_DIR / 'llmlab.db'}"
     auto_create_tables: bool = True
 
     # --- Demo account -------------------------------------------------------
@@ -64,10 +72,14 @@ class Settings(BaseSettings):
 
     # --- Fine-tuning --------------------------------------------------------
     upload_max_bytes: int = 10 * 1024 * 1024
-    adapters_dir: str = str(BASE_DIR / "data" / "adapters")
+    adapters_dir: str = str(RUNTIME_DIR / "adapters")
 
     @model_validator(mode="after")
     def _production_guards(self) -> "Settings":
+        if ON_SERVERLESS and not os.environ.get("LLMLAB_SECRET_KEY"):
+            # Each serverless instance would generate its own key, so sessions signed on one
+            # instance are rejected by the next (random logouts). Warn loudly instead of crashing.
+            logging.getLogger("llmlab").warning("LLMLAB_SECRET_KEY is not set: logins will not survive across serverless instances")
         if not self.secret_key:
             if self.environment == "production":
                 raise ValueError("LLMLAB_SECRET_KEY must be set in production")

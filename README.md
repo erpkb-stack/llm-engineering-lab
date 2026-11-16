@@ -192,6 +192,26 @@ llm-engineering-lab/
 `engine/registry.py:load_all`. The API, WebSocket channel, generic UI renderer, Benchmark Studio, history and docs pick it
 up automatically. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Deploying to Vercel
+
+Vercel detects the FastAPI app in `app/main.py` automatically; `vercel.json` keeps marketing/test files out of the
+function bundle and `.python-version` pins Python 3.12. Set these environment variables in **Project → Settings →
+Environment Variables**, then redeploy:
+
+| Variable | Value |
+|---|---|
+| `LLMLAB_SECRET_KEY` | **Required.** A long random string (`python -c "import secrets; print(secrets.token_urlsafe(48))"`). Without it every serverless instance signs sessions with its own key and users get logged out at random. |
+| `LLMLAB_DATABASE_URL` | Recommended. A Postgres URL (Neon, Supabase, Vercel Postgres). Plain `postgres://…?sslmode=require` URLs are accepted. |
+| `LLMLAB_DEMO_USER_PASSWORD` | Optional. Change it if the deployment is public. |
+
+Serverless limits to know about:
+
+- The code directory is read-only, so runtime files go to `/tmp/llmlab` (auto-detected via `VERCEL`). Without
+  `LLMLAB_DATABASE_URL` the SQLite database lives there too and is **wiped whenever an instance is recycled**:
+  users are re-seeded, but saved experiments are lost.
+- Module pages fall back from WebSocket to plain HTTP automatically. Fine-tuning jobs run in the background of one
+  instance, so live progress is best-effort; real (PyTorch) training needs the Docker deployment.
+
 ## Security
 
 Argon2id password hashing · password policy · JWT in an HttpOnly, SameSite cookie (Secure in production) plus Bearer
