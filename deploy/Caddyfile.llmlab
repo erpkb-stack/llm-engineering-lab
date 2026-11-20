@@ -1,0 +1,19 @@
+
+# --- LLM Engineering Lab (deployed from /opt/llmlab, see deploy/docker-compose.server.yml)
+llm-lab.groundwire.tech {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+	request_body {
+		max_size 12MB
+	}
+	reverse_proxy llmlab-app:8000 {
+		transport http {
+			read_timeout 300s
+		}
+	}
+}

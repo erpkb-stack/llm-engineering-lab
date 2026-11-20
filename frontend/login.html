@@ -48,16 +48,17 @@
             <input class="form-check-input" type="checkbox" id="remember">
             <label class="form-check-label" for="remember">Remember me</label>
           </div>
-          <button type="button" class="btn btn-link btn-sm p-0" id="fill-demo">Use demo account</button>
+          <button type="button" class="btn btn-link btn-sm p-0 d-none" id="fill-demo">Use demo account</button>
         </div>
         <div class="alert alert-danger py-2 d-none" id="login-error" role="alert"></div>
         <button class="btn btn-primary w-100" type="submit" id="login-btn">Log in</button>
       </form>
-      <hr class="my-4">
-      <div class="small text-muted">
-        Demo account: <span class="kbd">demo@llmlab.local</span> / <span class="kbd">Demo@12345</span><br>
-        Role demos (same password): <span class="kbd">engineer@</span> <span class="kbd">researcher@</span> <span class="kbd">viewer@</span>llmlab.local<br>
-        Credentials are configurable via <span class="kbd">LLMLAB_DEMO_USER_*</span> environment variables.
+      <div id="demo-info" class="d-none">
+        <hr class="my-4">
+        <div class="small text-muted">
+          <span id="demo-label">Demo account</span>: <span class="kbd" id="demo-email"></span> / <span class="kbd" id="demo-password"></span><br>
+          <span id="demo-note"></span>
+        </div>
       </div>
     </div>
   </section>

@@ -64,6 +64,12 @@ class Settings(BaseSettings):
     demo_user_role: Literal["admin", "engineer", "researcher", "viewer"] = "admin"
     seed_role_users: bool = True  # also seeds engineer@/researcher@/viewer@llmlab.local
 
+    # --- Public demo (optional) ---------------------------------------------
+    # A read-only *viewer* account whose credentials are shown on the login page, so visitors
+    # can try the lab on a public deployment. Disabled unless both values are set.
+    public_demo_email: str = ""
+    public_demo_password: str = ""
+
     # --- Model providers ----------------------------------------------------
     llm_provider: Literal["simulation", "ollama", "openai", "huggingface"] = "simulation"
     ollama_base_url: str = "http://localhost:11434"
@@ -91,6 +97,8 @@ class Settings(BaseSettings):
             if self.environment == "production":
                 raise ValueError("LLMLAB_SECRET_KEY must be set in production")
             self.secret_key = secrets.token_urlsafe(48)  # dev fallback for an empty value in .env
+        if self.public_demo_enabled and self.public_demo_email.strip().lower() == self.demo_user_email.strip().lower():
+            raise ValueError("LLMLAB_PUBLIC_DEMO_EMAIL must differ from LLMLAB_DEMO_USER_EMAIL")
         if self.environment == "production":
             if len(self.secret_key) < 32:
                 raise ValueError("LLMLAB_SECRET_KEY must be set (>=32 chars) in production")
@@ -98,7 +106,15 @@ class Settings(BaseSettings):
                 raise ValueError("LLMLAB_COOKIE_SECURE must be true in production")
             if self.demo_user_password == "Demo@12345":
                 raise ValueError("Change LLMLAB_DEMO_USER_PASSWORD in production")
+            if self.public_demo_enabled and self.public_demo_password == self.demo_user_password:
+                raise ValueError("LLMLAB_PUBLIC_DEMO_PASSWORD is published on the login page; it must differ from LLMLAB_DEMO_USER_PASSWORD")
+            if self.public_demo_enabled and self.seed_role_users:
+                raise ValueError("LLMLAB_SEED_ROLE_USERS must be false when a public demo is enabled (role users share the admin password)")
         return self
+
+    @property
+    def public_demo_enabled(self) -> bool:
+        return bool(self.public_demo_email.strip() and self.public_demo_password)
 
 
 @lru_cache

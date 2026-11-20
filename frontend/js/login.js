@@ -12,10 +12,30 @@ document.getElementById("toggle-pw").addEventListener("click", (e) => {
   e.currentTarget.textContent = show ? "Hide" : "Show";
   e.currentTarget.setAttribute("aria-label", show ? "Hide password" : "Show password");
 });
-document.getElementById("fill-demo").addEventListener("click", () => {
-  email.value = "demo@llmlab.local";
-  pw.value = "Demo@12345";
+// Demo credentials come from the server, which only publishes a read-only viewer account in production.
+let demo = null;
+const fillDemo = document.getElementById("fill-demo");
+fillDemo.addEventListener("click", () => {
+  if (!demo) return;
+  email.value = demo.email;
+  pw.value = demo.password;
 });
+fetch("/api/auth/demo", { credentials: "same-origin" })
+  .then((r) => (r.ok ? r.json() : null))
+  .then((d) => {
+    if (!d?.enabled) return;
+    demo = d;
+    document.getElementById("demo-email").textContent = d.email;
+    document.getElementById("demo-password").textContent = d.password;
+    document.getElementById("demo-label").textContent = d.read_only ? "Public demo (read-only viewer)" : `Demo account (${d.role_label})`;
+    document.getElementById("demo-note").textContent = d.read_only
+      ? "Run any module in simulation mode. Saving, benchmarks, fine-tuning and settings need a full account."
+      : d.role_users ? "Role demos (same password): engineer@, researcher@, viewer@llmlab.local" : "";
+    fillDemo.textContent = d.read_only ? "Use public demo" : "Use demo account";
+    fillDemo.classList.remove("d-none");
+    document.getElementById("demo-info").classList.remove("d-none");
+  })
+  .catch(() => {});
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();

@@ -47,6 +47,24 @@ class LoginResponse(BaseModel):
     csrf_token: str
 
 
+@router.get("/demo")
+async def demo_account():
+    """Demo credentials the login page may display (public by design).
+
+    Production only ever exposes the dedicated read-only public demo account; outside production
+    the seeded demo user is shown for local convenience.
+    """
+    s = get_settings()
+    if s.public_demo_enabled:
+        return {"enabled": True, "email": s.public_demo_email.strip(), "password": s.public_demo_password,
+                "role": "viewer", "role_label": ROLE_LABELS["viewer"], "read_only": True}
+    if s.environment != "production":
+        return {"enabled": True, "email": s.demo_user_email, "password": s.demo_user_password,
+                "role": s.demo_user_role, "role_label": ROLE_LABELS.get(s.demo_user_role, s.demo_user_role),
+                "read_only": False, "role_users": s.seed_role_users}
+    return {"enabled": False}
+
+
 @router.post("/login", response_model=LoginResponse)
 async def login(body: LoginRequest, request: Request, response: Response, db: AsyncSession = Depends(get_db)):
     s = get_settings()
